@@ -28,8 +28,8 @@ const defaultContent = {
     tagline: "Building scalable web applications and creating technology that solves real-world problems.",
     availability: "Available for Summer Internships",
     email: "contact@example.com",
-    github: "https://github.com/sivakumar46",
-    linkedin: "https://linkedin.com/in/sivakumar46"
+    github: "https://github.com/Siva44646",
+    linkedin: "https://www.linkedin.com/in/siva-kumar-1946622b3/"
   },
   about: {
     story: "As a B.Tech Computer Science Engineering Student entering my 4th year, my journey is defined by a deep passion for software development. I thrive at the intersection of design and engineering, combining a strong interest in Full Stack Development with a rigorous approach to Data Structures and Algorithms.",
