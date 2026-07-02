@@ -6,7 +6,7 @@ import { LogOut, Save, Plus, Trash2, GripVertical } from 'lucide-react';
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('profile');
   const [content, setContent] = useState({
-    profile: {}, about: { highlights: [] }, skills: [], timeline: [], achievements: []
+    profile: {}, about: { highlights: [] }, skills: [], timeline: [], achievements: [], contact: { socials: [] }
   });
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +34,7 @@ export default function AdminDashboard() {
         skills: contentRes.data.skills || [],
         timeline: contentRes.data.timeline || [],
         achievements: contentRes.data.achievements || [],
+        contact: contentRes.data.contact || { socials: [] },
       });
       setProjects(projectsRes.data);
     } catch (err) {
@@ -173,7 +174,7 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-white bg-neutral-950">Loading...</div>;
 
-  const tabs = ['profile', 'about', 'skills', 'timeline', 'achievements', 'projects'];
+  const tabs = ['profile', 'about', 'skills', 'timeline', 'achievements', 'projects', 'contact'];
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white p-6 lg:p-12">
@@ -466,6 +467,64 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* CONTACT */}
+          {activeTab === 'contact' && (
+            <div className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs text-neutral-400">Section Title</label>
+                  <input value={content.contact.title || ''} onChange={(e) => handleContentChange('contact', 'title', e.target.value)} className="w-full bg-neutral-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-cyan-400/50" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs text-neutral-400">Description Text</label>
+                  <textarea value={content.contact.description || ''} onChange={(e) => handleContentChange('contact', 'description', e.target.value)} rows={3} className="w-full bg-neutral-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-cyan-400/50 resize-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs text-neutral-400">Location Text</label>
+                  <input value={content.contact.location || ''} onChange={(e) => handleContentChange('contact', 'location', e.target.value)} className="w-full bg-neutral-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-cyan-400/50" />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold">Social Links</h2>
+                  <button onClick={() => addArrayItem('contact', 'socials', { platform: 'New Social', url: 'https://', icon: 'FiGithub' })} className="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg text-sm hover:bg-white/20 transition-colors">
+                    <Plus size={14} /> Add Social Link
+                  </button>
+                </div>
+                
+                <div className="space-y-4">
+                  {(content.contact.socials || []).map((social, index) => (
+                    <div key={index} className="bg-neutral-900/50 border border-white/5 p-4 rounded-2xl relative group">
+                      <button onClick={() => removeArrayItem('contact', 'socials', index)} className="absolute top-4 right-4 text-neutral-500 hover:text-red-400 transition-colors">
+                        <Trash2 size={16} />
+                      </button>
+                      
+                      <div className="grid md:grid-cols-3 gap-4 pr-8">
+                        <div className="space-y-1">
+                          <label className="text-[10px] uppercase text-neutral-500 font-bold">Platform</label>
+                          <input value={social.platform} onChange={(e) => handleNestedArrayChange('contact', 'socials', index, 'platform', e.target.value)} className="w-full bg-neutral-950 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-400/50" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] uppercase text-neutral-500 font-bold">Icon (e.g., FiGithub, FiTwitter, FiInstagram, FiFacebook, FiYoutube)</label>
+                          <input value={social.icon} onChange={(e) => handleNestedArrayChange('contact', 'socials', index, 'icon', e.target.value)} className="w-full bg-neutral-950 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-400/50" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] uppercase text-neutral-500 font-bold">URL Link</label>
+                          <input value={social.url} onChange={(e) => handleNestedArrayChange('contact', 'socials', index, 'url', e.target.value)} className="w-full bg-neutral-950 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-400/50" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button onClick={() => handleSaveContent('contact')} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-bold">
+                <Save size={16} /> Save Contact Details
+              </button>
             </div>
           )}
 

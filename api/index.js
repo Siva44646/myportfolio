@@ -54,7 +54,16 @@ const defaultContent = {
     { value: 15, label: "Technologies Learned", suffix: "+" },
     { value: 1, label: "Internship Experience", suffix: "" },
     { value: 1000, label: "Coding Hours", suffix: "+" }
-  ]
+  ],
+  contact: {
+    title: "Let's build something extraordinary together.",
+    description: "Whether you have a question, a project idea, or just want to say hi, my inbox is always open. I'll try my best to get back to you!",
+    location: "India",
+    socials: [
+      { platform: "GitHub", url: "https://github.com/Siva44646", icon: "FiGithub" },
+      { platform: "LinkedIn", url: "https://www.linkedin.com/in/siva-kumar-1946622b3/", icon: "FiLinkedin" }
+    ]
+  }
 };
 
 const defaultProjects = [
@@ -164,8 +173,10 @@ app.get('/api/content/:section', async (req, res) => {
   if (!pool) return res.json(defaultContent[req.params.section] || {});
   try {
     const result = await pool.query("SELECT data FROM content WHERE section = $1", [req.params.section]);
-    if (result.rows.length === 0) res.status(404).json({ error: 'Section not found' });
-    else res.json(JSON.parse(result.rows[0].data));
+    if (result.rows.length === 0) {
+      return res.json(defaultContent[req.params.section] || {});
+    }
+    res.json(JSON.parse(result.rows[0].data));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -175,8 +186,10 @@ app.get('/api/content', async (req, res) => {
   if (!pool) return res.json(defaultContent);
   try {
     const result = await pool.query("SELECT * FROM content");
-    const allContent = {};
-    result.rows.forEach(r => allContent[r.section] = JSON.parse(r.data));
+    const allContent = { ...defaultContent };
+    result.rows.forEach(r => {
+      if (r.data) allContent[r.section] = JSON.parse(r.data);
+    });
     res.json(allContent);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -186,7 +199,10 @@ app.get('/api/content', async (req, res) => {
 app.put('/api/content/:section', authenticateToken, async (req, res) => {
   if (!pool) return res.json({ updatedSection: req.params.section, warning: 'No database connected. Changes not saved globally.' });
   try {
-    await pool.query("UPDATE content SET data = $1 WHERE section = $2", [JSON.stringify(req.body), req.params.section]);
+    await pool.query(
+      "INSERT INTO content (section, data) VALUES ($1, $2) ON CONFLICT (section) DO UPDATE SET data = EXCLUDED.data",
+      [req.params.section, JSON.stringify(req.body)]
+    );
     res.json({ updatedSection: req.params.section });
   } catch (err) {
     res.status(500).json({ error: err.message });

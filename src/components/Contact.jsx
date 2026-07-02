@@ -1,25 +1,30 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Send, MapPin, Mail } from 'lucide-react'
-import { FiGithub, FiLinkedin } from 'react-icons/fi'
+import * as FiIcons from 'react-icons/fi'
 import axios from 'axios'
 
 export default function Contact() {
   const [profile, setProfile] = useState(null);
+  const [contact, setContact] = useState(null);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get('/api/content/profile');
-        setProfile(res.data);
+        const [profileRes, contactRes] = await Promise.all([
+          axios.get('/api/content/profile'),
+          axios.get('/api/content/contact')
+        ]);
+        setProfile(profileRes.data);
+        setContact(contactRes.data);
       } catch (err) {
         console.error(err);
       }
     };
-    fetchProfile();
+    fetchData();
   }, []);
 
-  if (!profile) return null;
+  if (!profile || !contact) return null;
 
   return (
     <section id="contact" className="py-32 bg-neutral-950 relative overflow-hidden">
@@ -30,11 +35,11 @@ export default function Contact() {
               Get In Touch
             </h2>
             <h3 className="text-4xl md:text-5xl font-bold tracking-tight mb-8">
-              Let's build something extraordinary together.
+              {contact.title || "Let's build something extraordinary together."}
             </h3>
             
             <p className="text-neutral-400 leading-relaxed mb-12 max-w-md">
-              Whether you have a question, a project idea, or just want to say hi, my inbox is always open. I'll try my best to get back to you!
+              {contact.description || "Whether you have a question, a project idea, or just want to say hi, my inbox is always open. I'll try my best to get back to you!"}
             </p>
 
             <div className="space-y-6">
@@ -54,18 +59,21 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="text-sm text-neutral-500">Location</p>
-                  <p className="font-medium">India</p>
+                  <p className="font-medium">{contact.location || "India"}</p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-12 flex gap-4">
-              <a href={profile.github?.startsWith('http') ? profile.github : `https://${profile.github}`} target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all group">
-                <FiGithub size={20} className="text-neutral-400 group-hover:text-white transition-colors" />
-              </a>
-              <a href={profile.linkedin?.startsWith('http') ? profile.linkedin : `https://${profile.linkedin}`} target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all group">
-                <FiLinkedin size={20} className="text-neutral-400 group-hover:text-white transition-colors" />
-              </a>
+            <div className="mt-12 flex flex-wrap gap-4">
+              {(contact.socials || []).map((social, index) => {
+                const IconComponent = FiIcons[social.icon] || FiIcons.FiLink;
+                const linkUrl = social.url?.startsWith('http') ? social.url : `https://${social.url}`;
+                return (
+                  <a key={index} href={linkUrl} target="_blank" rel="noreferrer" title={social.platform} className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all group">
+                    <IconComponent size={20} className="text-neutral-400 group-hover:text-white transition-colors" />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
